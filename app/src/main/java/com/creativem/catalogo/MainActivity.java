@@ -18,7 +18,6 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     private Button buttonNavigate;
-
     private Spinner spinnerProducts;
     private Button buttonAddToCart;
     private ListView listViewCart;
@@ -58,22 +57,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String selectedItem = spinnerProducts.getSelectedItem().toString();
-                if (!cartItems.contains(selectedItem)) {
+                SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+                int totalElementos = sharedPreferences.getInt("totalElementos", 0);
+                boolean alreadyAdded = false;
+                for (int i = 1; i <= totalElementos; i++) {
+                    String seleccion = sharedPreferences.getString("seleccion" + i, "");
+                    if (seleccion.equals(selectedItem)) {
+                        alreadyAdded = true;
+                        break;
+                    }
+                }
+                if (!alreadyAdded) {
                     cartItems.add(selectedItem);
                     cartAdapter.notifyDataSetChanged();
-                    Toast.makeText(getApplicationContext(), "Planta Agregada Al huerto",
-                            Toast.LENGTH_SHORT).show();
-
+                    Toast.makeText(getApplicationContext(), "Planta agregada al huerto", Toast.LENGTH_SHORT).show();
                     // Guardar la selección en SharedPreferences
-                    SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    int totalElementos = sharedPreferences.getInt("totalElementos", 0);
                     editor.putString("seleccion" + (totalElementos + 1), selectedItem);
                     editor.putInt("totalElementos", totalElementos + 1);
                     editor.apply();
                 } else {
-                    Toast.makeText(getApplicationContext(), "Planta ya esta en el huerto",
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "La planta ya está en el huerto", Toast.LENGTH_SHORT).show();
                 }
             }
         });
